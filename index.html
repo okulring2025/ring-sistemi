@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ring Çağırma Sistemi</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #EFF6FF 0%, #E0E7FF 100%);
+            min-height: 100vh;
+            padding: 1rem;
+        }
+        
+        .container {
+            max-width: 28rem;
+            margin: 0 auto;
+        }
+        
+        .room-code-card {
+            background: white;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .room-label {
+            font-size: 0.75rem;
+            color: #6B7280;
+        }
+        
+        .room-code {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: #4F46E5;
+        }
+        
+        .share-btn {
+            padding: 0.5rem 1rem;
+            background: #4F46E5;
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-size: 0.875rem;
+        }
+        
+        .share-btn:hover {
+            background: #4338CA;
+        }
+        
+        .header {
+            background: white;
+            border-radius: 1.5rem 1.5rem 0 0;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            position: relative;
+        }
+        
+        .settings-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            padding: 0.5rem 1rem;
+            background: #4F46E5;
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-size: 0.875rem;
+        }
+        
+        .bell-icon {
+            width: 5rem;
+            height: 5rem;
+            background: #4F46E5;
+            border-radius: 50%;
+            margin: 0 auto 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+        }
+        
+        .title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #1F2937;
+            margin-bottom: 0.5rem;
+        }
+        
+        .subtitle {
+            color: #6B7280;
+        }
+        
+        .counter-section {
+            background: white;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .counter {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .count-display {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #4F46E5;
+        }
+        
+        .count-target {
+            font-size: 1.5rem;
+            color: #9CA3AF;
+        }
+        
+        .progress-bar-container {
+            width: 100%;
+            height: 1rem;
+            background: #E5E7EB;
+            border-radius: 9999px;
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #6366F1 0%, #8B5CF6 100%);
+            transition: width 0.5s;
+        }
+        
+        .progress-text {
+            text-align: center;
+            font-size: 0.875rem;
+            color: #6B7280;
+            margin-top: 0.5rem;
+        }
+        
+        .success-message {
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background: #D1FAE5;
+            border: 1px solid #6EE7B7;
+            border-radius: 0.5rem;
+            color: #065F46;
+            font-weight: 500;
+            display: none;
+        }
+        
+        .success-message.show {
+            display: block;
+            animation: bounce 0.5s;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .ring-btn {
+            width: 100%;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            font-weight: bold;
+            font-size: 1.125rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .ring-btn.active {
+            background: #4F46E5;
+            color: white;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .ring-btn.active:hover {
+            background: #4338CA;
+            transform: scale(1.02);
+        }
+        
+        .ring-btn.disabled {
+            background: #D1D5DB;
+            color: #6B7280;
+            cursor: not-allowed;
+        }
+        
+        .cooldown-message {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #FEF3C7;
+            border: 1px solid #FCD34D;
+            border-radius: 0.5rem;
+            text-align: center;
+            color: #92400E;
+            display: none;
+        }
+        
+        .cooldown-message.show {
+            display: block;
+        }
+        
+        .complete-message {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #D1FAE5;
+            border: 2px solid #34D399;
+            border-radius: 0.5rem;
+            display: none;
+        }
+        
+        .complete-message.show {
+            display: block;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+        
+        .info-section {
+            background: white;
+            border-radius: 0 0 1.5rem 1.5rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .info-title {
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            color: #1F2937;
+        }
+        
+        .info-list {
+            font-size: 0.75rem;
+            color: #6B7280;
+            padding-left: 1.5rem;
+        }
+        
+        .info-list li {
+            margin-bottom: 0.25rem;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            z-index: 50;
+        }
+        
+        .modal.show {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            max-width: 24rem;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        .form-label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #D1D5DB;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+        }
+        
+        .form-hint {
+            font-size: 0.75rem;
+            color: #6B7280;
+            margin-top: 0.25rem;
+        }
+        
+        .info-box {
+            background: #EFF6FF;
+            border: 1px solid #BFDBFE;
+            border-radius: 0.5rem;
+            padding: 0.75rem;
+            font-size: 0.75rem;
+            color: #1E40AF;
+            margin-bottom: 1rem;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .btn {
+            flex: 1;
+            padding: 0.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-size: 0.875rem;
+        }
+        
+        .btn-primary {
+            background: #4F46E5;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #4338CA;
+        }
+        
+        .btn-secondary {
+            background: #D1D5DB;
+            color: #374151;
+        }
+        
+        .btn-secondary:hover {
+            background: #9CA3AF;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Oda Kodu -->
+        <div class="room-code-card">
+            <div>
+                <div class="room-label">Oda Kodu</div>
+                <div class="room-code" id="roomCode">------</div>
+            </div>
+            <button class="share-btn" onclick="shareLink()">📋 Paylaş</button>
+        </div>
+
+        <!-- Header -->
+        <div class="header">
+            <button class="settings-btn" onclick="openSettings()">⚙️ Ayarlar</button>
+            <div class="bell-icon">🔔</div>
+            <h1 class="title">Ring Çağırma Sistemi</h1>
+            <p class="subtitle">Durak: <span id="stopName">Ana Kapı</span></p>
+        </div>
+
+        <!-- Counter -->
+        <div class="counter-section">
+            <div class="counter">
+                <div>
+                    <span class="count-display" id="count">0</span>
+                    <span class="count-target">/ 30</span>
+                </div>
+                <p style="color: #6B7280; margin-top: 0.5rem;">kişi ring çağırdı</p>
+            </div>
+
+            <div class="progress-bar-container">
+                <div class="progress-bar" id="progressBar" style="width: 0%"></div>
+            </div>
+            <div class="progress-text" id="progressText">%0 tamamlandı</div>
+
+            <div class="success-message" id="successMessage">
+                ✅ Ring çağrınız kaydedildi!
+            </div>
+
+            <button class="ring-btn active" id="ringBtn" onclick="callRing()">
+                🔔 RING ÇAĞIR
+            </button>
+
+            <div class="cooldown-message" id="cooldownMessage">
+                Tekrar çağırabilmek için: <strong id="cooldownTime">--:--</strong>
+            </div>
+
+            <div class="complete-message" id="completeMessage">
+                <p style="font-weight: bold; color: #065F46; margin-bottom: 0.25rem;">🎉 Hedef Tamamlandı!</p>
+                <p style="font-size: 0.875rem; color: #047857;">Şoför bilgilendirildi!</p>
+            </div>
+        </div>
+
+        <!-- Info -->
+        <div class="info-section">
+            <p class="info-title">✅ Nasıl Çalışır?</p>
+            <ul class="info-list">
+                <li>Aynı oda koduna sahip herkes aynı sayacı görür</li>
+                <li>"Paylaş" butonuyla linki arkadaşlarınıza gönderin</li>
+                <li>30 kişi butona basınca şoföre bildirim gider</li>
+                <li>Her kişi 30 dakikada bir basabilir</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="modal" id="settingsModal">
+        <div class="modal-content">
+            <h2 class="modal-title">⚙️ Ayarlar</h2>
+            
+            <div class="form-group">
+                <label class="form-label">Durak Adı</label>
+                <input type="text" class="form-input" id="stopNameInput" placeholder="Örn: Ana Kapı">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Şoför Telefon (Ülke Kodu İle)</label>
+                <input type="text" class="form-input" id="driverPhone" placeholder="905XXXXXXXXX">
+                <div class="form-hint">Örnek: 905321234567 (90 = Türkiye)</div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">API Key (WhatsApp)</label>
+                <input type="text" class="form-input" id="apiKey" placeholder="CallMeBot API">
+            </div>
+
+            <div class="info-box">
+                <p style="font-weight: 600; margin-bottom: 0.25rem;">📱 WhatsApp Kurulum:</p>
+                <ol style="padding-left: 1.2rem; margin: 0;">
+                    <li>Şoför +34 644 21 69 07 numarasını kaydetsin</li>
+                    <li>"I allow callmebot to send me messages" yazsın</li>
+                    <li>Gelen API key'i buraya girin</li>
+                </ol>
+            </div>
+
+            <div class="button-group">
+                <button class="btn btn-primary" onclick="saveSettings()">Kaydet</button>
+                <button class="btn btn-secondary" onclick="closeSettings()">İptal</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const TARGET_COUNT = 30;
+        const COOLDOWN_MS = 30 * 60 * 1000; // 30 dakika
+        let roomCode = '';
+        let cooldownInterval = null;
+
+        // Sayfa yüklendiğinde
+        window.onload = function() {
+            initRoom();
+            loadSettings();
+            loadData();
+            setInterval(loadData, 3000); // 3 saniyede bir güncelle
+            checkCooldown();
+        };
+
+        function initRoom() {
+            const params = new URLSearchParams(window.location.search);
+            const urlRoom = params.get('room');
+            
+            if (urlRoom) {
+                roomCode = urlRoom;
+                localStorage.setItem('roomCode', urlRoom);
+            } else {
+                const storedRoom = localStorage.getItem('roomCode');
+                if (storedRoom) {
+                    roomCode = storedRoom;
+                } else {
+                    roomCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+                    localStorage.setItem('roomCode', roomCode);
+                }
+            }
+            
+            document.getElementById('roomCode').textContent = roomCode;
+        }
+
+        function loadSettings() {
+            const stopName = localStorage.getItem('stopName') || 'Ana Kapı';
+            const driverPhone = localStorage.getItem('driverPhone') || '';
+            const apiKey = localStorage.getItem('apiKey') || '';
+            
+            document.getElementById('stopName').textContent = stopName;
+            document.getElementById('stopNameInput').value = stopName;
+            document.getElementById('driverPhone').value = driverPhone;
+            document.getElementById('apiKey').value = apiKey;
+        }
+
+        function loadData() {
+            const key = `ring_count_${roomCode}`;
+            const data = localStorage.getItem(key);
+            const count = data ? parseInt(data) : 0;
+            
+            updateUI(count);
+        }
+
+        function updateUI(count) {
+            document.getElementById('count').textContent = count;
+            
+            const progress = Math.min((count / TARGET_COUNT) * 100, 100);
+            document.getElementById('progressBar').style.width = progress + '%';
+            document.getElementById('progressText').textContent = '%' + Math.round(progress) + ' tamamlandı';
+            
+            if (count >= TARGET_COUNT) {
+                document.getElementById('completeMessage').classList.add('show');
+            } else {
+                document.getElementById('completeMessage').classList.remove('show');
+            }
+        }
+
+        function callRing() {
+            const lastCall = localStorage.getItem(`lastCall_${roomCode}`);
+            const now = Date.now();
+            
+            if (lastCall && (now - parseInt(lastCall)) < COOLDOWN_MS) {
+                alert('Henüz bekleme süreniz bitmedi!');
+                return;
+            }
+            
+            // Sayıyı artır
+            const key = `ring_count_${roomCode}`;
+            const currentCount = parseInt(localStorage.getItem(key) || '0');
+            const newCount = currentCount + 1;
+            localStorage.setItem(key, newCount.toString());
+            
+            // Cooldown başlat
+            localStorage.setItem(`lastCall_${roomCode}`, now.toString());
+            
+            // UI güncelle
+            updateUI(newCount);
+            document.getElementById('successMessage').classList.add('show');
+            setTimeout(() => {
+                document.getElementById('successMessage').classList.remove('show');
+            }, 3000);
+            
+            // Butonu devre dışı bırak
+            document.getElementById('ringBtn').classList.remove('active');
+            document.getElementById('ringBtn').classList.add('disabled');
+            document.getElementById('ringBtn').textContent = '⏳ Bekleme Süresi';
+            document.getElementById('cooldownMessage').classList.add('show');
+            
+            startCooldownTimer();
+            
+            // 30'a ulaşıldıysa bildir
+            if (newCount >= TARGET_COUNT) {
+                notifyDriver(newCount);
+            }
+        }
+
+        function checkCooldown() {
+            const lastCall = localStorage.getItem(`lastCall_${roomCode}`);
+            if (!lastCall) return;
+            
+            const now = Date.now();
+            const elapsed = now - parseInt(lastCall);
+            
+            if (elapsed < COOLDOWN_MS) {
+                document.getElementById('ringBtn').classList.remove('active');
+                document.getElementById('ringBtn').classList.add('disabled');
+                document.getElementById('ringBtn').textContent = '⏳ Bekleme Süresi';
+                document.getElementById('cooldownMessage').classList.add('show');
+                startCooldownTimer();
+            }
+        }
+
+        function startCooldownTimer() {
+            if (cooldownInterval) clearInterval(cooldownInterval);
+            
+            cooldownInterval = setInterval(() => {
+                const lastCall = localStorage.getItem(`lastCall_${roomCode}`);
+                if (!lastCall) {
+                    clearInterval(cooldownInterval);
+                    return;
+                }
+                
+                const now = Date.now();
+                const elapsed = now - parseInt(lastCall);
+                const remaining = COOLDOWN_MS - elapsed;
+                
+                if (remaining <= 0) {
+                    clearInterval(cooldownInterval);
+                    document.getElementById('ringBtn').classList.remove('disabled');
+                    document.getElementById('ringBtn').classList.add('active');
+                    document.getElementById('ringBtn').textContent = '🔔 RING ÇAĞIR';
+                    document.getElementById('cooldownMessage').classList.remove('show');
+                } else {
+                    const mins = Math.floor(remaining / 60000);
+                    const secs = Math.floor((remaining % 60000) / 1000);
+                    document.getElementById('cooldownTime').textContent = 
+                        mins + ':' + secs.toString().padStart(2, '0');
+                }
+            }, 1000);
+        }
+
+        function notifyDriver(count) {
+            const driverPhone = localStorage.getItem('driverPhone');
+            const apiKey = localStorage.getItem('apiKey');
+            const stopName = localStorage.getItem('stopName') || 'Ana Kapı';
+            
+            if (!driverPhone || !apiKey) return;
+            
+            const notified = localStorage.getItem(`notified_${roomCode}`);
+            if (notified) return;
+            
+            const message = `🚌 ACİL: ${stopName} durağında ${count} kişi ring çağırdı! Lütfen durağa gidin.`;
+            const url = `https://api.callmebot.com/whatsapp.php?phone=${driverPhone}&text=${encodeURIComponent(message)}&apikey=${apiKey}`;
+            
+            fetch(url, { mode: 'no-cors' })
+                .then(() => {
+                    localStorage.setItem(`notified_${roomCode}`, 'true');
+                    alert('✅ Şoför bilgilendirildi!');
+                })
+                .catch(err => console.error('Bildirim hatası:', err));
+        }
+
+        function shareLink() {
+            const link = window.location.origin + window.location.pathname + '?room=' + roomCode;
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Ring Sistemi',
+                    text: 'Ring çağırma sistemine katıl!',
+                    url: link
+                });
+            } else if (navigator.clipboard) {
+                navigator.clipboard.writeText(link).then(() => {
+                    alert('✅ Link kopyalandı!\n\n' + link);
+                });
+            } else {
+                prompt('Bu linki kopyalayın:', link);
+            }
+        }
+
+        function openSettings() {
+            document.getElementById('settingsModal').classList.add('show');
+        }
+
+        function closeSettings() {
+            document.getElementById('settingsModal').classList.remove('show');
+        }
+
+        function saveSettings() {
+            const stopName = document.getElementById('stopNameInput').value;
+            const driverPhone = document.getElementById('driverPhone').value;
+            const apiKey = document.getElementById('apiKey').value;
+            
+            localStorage.setItem('stopName', stopName);
+            localStorage.setItem('driverPhone', driverPhone);
+            localStorage.setItem('apiKey', apiKey);
+            
+            document.getElementById('stopName').textContent = stopName;
+            
+            alert('✅ Ayarlar kaydedildi!');
+            closeSettings();
+        }
+    </script>
+</body>
+</html>
+```
+
+5. En alta inin, **"Commit changes"** butonuna basın
+6. Açılan pencerede tekrar **"Commit changes"** butonuna basın
+
+---
+
+## 📋 ADIM 4: GitHub Pages'i Aktifleştirin
+
+1. Proje sayfasında üstte **"Settings"** (Ayarlar) sekmesine tıklayın
+2. Sol menüden **"Pages"** seçin
+3. **"Source"** bölümünde **"Deploy from a branch"** seçin
+4. **"Branch"** dropdown'ında **"main"** seçin
+5. Yanındaki klasör **"/ (root)"** olarak kalsın
+6. **"Save"** butonuna basın
+7. Sayfa yenilenecek, yukarıda **mavi bir kutu** çıkacak: "Your site is ready to be published at..."
+
+**1-2 dakika bekleyin!** ⏰
+
+---
+
+## 📋 ADIM 5: Linkinizi Alın
+
+1. 1-2 dakika sonra sayfayı yenileyin (F5)
+2. Yukarıda **yeşil bir kutu** çıkacak: "Your site is live at..."
+3. Oradaki linki kopyalayın! 🎉
+
+**Linkiniz şuna benzer olacak:**
+```
+https://kullaniciadi.github.io/ring-sistemi/
