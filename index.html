@@ -105,7 +105,11 @@
             font-weight: 500;
             display: none;
         }
-        .success-message.show { display: block; }
+        .success-message.show { display: block; animation: bounce 0.5s; }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
         .ring-btn {
             width: 100%;
             padding: 1rem;
@@ -148,8 +152,13 @@
             border: 2px solid #34D399;
             border-radius: 0.5rem;
             display: none;
+            animation: pulse 2s infinite;
         }
         .complete-message.show { display: block; }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
         .info-section {
             background: white;
             border-radius: 0 0 1.5rem 1.5rem;
@@ -239,7 +248,7 @@
     <div class="container">
         <!-- Status -->
         <div class="status-bar">
-            <span id="statusText" class="status-offline">🔴 Bağlanıyor...</span>
+            <span id="statusText" class="status-online">🟢 Sistem Aktif</span>
         </div>
 
         <!-- Header -->
@@ -247,7 +256,7 @@
             <button class="settings-btn" onclick="openSettings()">⚙️ Ayarlar</button>
             <div class="bell-icon">🔔</div>
             <h1 class="title">Ring Çağırma Sistemi</h1>
-            <p class="subtitle">Durak: <span id="stopName">Mühendislik</span></p>
+            <p class="subtitle">Durak: <span id="stopName">MÜHENDİSLİK FAKÜLTESİ</span></p>
         </div>
 
         <!-- Counter -->
@@ -290,8 +299,9 @@
             <ul class="info-list">
                 <li>TÜM OKUL aynı sayacı görür</li>
                 <li>Herkes aynı linki/QR'ı kullanır</li>
-                <li>30 kişi butona basınca şoföre WhatsApp gider</li>
+                <li>30 kişi butona basınca şoföre Telegram mesajı gider</li>
                 <li>Her kişi 30 dakikada bir basabilir</li>
+                <li>Firebase + Telegram ile güvenli çalışır</li>
             </ul>
         </div>
     </div>
@@ -299,7 +309,7 @@
     <!-- Settings Modal -->
     <div class="modal" id="settingsModal">
         <div class="modal-content">
-            <h2 class="modal-title">⚙️ WAPI Ayarları</h2>
+            <h2 class="modal-title">⚙️ Telegram Ayarları</h2>
             
             <div class="form-group">
                 <label class="form-label">Durak Adı</label>
@@ -307,30 +317,26 @@
             </div>
 
             <div class="form-group">
-                <label class="form-label">Şoför Telefon</label>
-                <input type="text" class="form-input" id="driverPhone" placeholder="905321234567">
-                <div class="form-hint">Başında 0 olmadan, örn: 905321234567</div>
+                <label class="form-label">Telegram Bot Token</label>
+                <input type="text" class="form-input" id="botToken" placeholder="7234567890:AAHdqTcvCH1vGWJxfSeofSAs0K5PALDsaw">
+                <div class="form-hint">@BotFather'dan aldığınız uzun kod</div>
             </div>
 
             <div class="form-group">
-                <label class="form-label">WAPI Instance ID</label>
-                <input type="text" class="form-input" id="wapiInstanceId" placeholder="instance_xxxxx">
-                <div class="form-hint">WAPI Dashboard'dan kopyalayın</div>
-            </div>
-
-            <div class="form-group">
-                <label class="form-label">WAPI Token</label>
-                <input type="text" class="form-input" id="wapiToken" placeholder="wapi_xxxxxxxxxx">
-                <div class="form-hint">WAPI Dashboard'dan kopyalayın</div>
+                <label class="form-label">Telegram Chat ID</label>
+                <input type="text" class="form-input" id="chatId" placeholder="987654321">
+                <div class="form-hint">Şoförün Telegram Chat ID'si</div>
             </div>
 
             <div class="info-box">
-                <p style="font-weight: 600; margin-bottom: 0.5rem;">📱 WAPI'den Nereden Alacaksınız:</p>
-                <ol style="padding-left: 1.2rem; margin: 0;">
-                    <li><strong>wapi.chat</strong> sitesine girin</li>
-                    <li>Dashboard'da <strong>"Instance"</strong> bölümüne gidin</li>
-                    <li><strong>Instance ID</strong> ve <strong>Token</strong>'ı kopyalayın</li>
-                    <li>Yukarıdaki kutulara yapıştırın</li>
+                <p style="font-weight: 600; margin-bottom: 0.5rem;">📱 Kurulum Adımları:</p>
+                <ol style="padding-left: 1.2rem; margin: 0; font-size: 0.7rem;">
+                    <li>Telegram'da <strong>@BotFather</strong> arayın</li>
+                    <li><strong>/newbot</strong> yazıp bot oluşturun</li>
+                    <li>Gelen <strong>Token</strong>'ı yukarı yapıştırın</li>
+                    <li>Botunuza START yazın</li>
+                    <li>api.telegram.org/bot[TOKEN]/getUpdates ile Chat ID alın</li>
+                    <li>Chat ID'yi yukarı yapıştırın</li>
                 </ol>
             </div>
 
@@ -352,13 +358,13 @@
     <script>
         // ⚠️ FİREBASE AYARLARI - BURAYA KENDİ BİLGİLERİNİZİ YAZIN ⚠️
         const firebaseConfig = {
-            apiKey: "BURAYA-FIREBASE-API-KEY",
-            authDomain: "BURAYA-AUTH-DOMAIN",
-            databaseURL: "BURAYA-DATABASE-URL",
-            projectId: "BURAYA-PROJECT-ID",
-            storageBucket: "BURAYA-STORAGE-BUCKET",
-            messagingSenderId: "BURAYA-SENDER-ID",
-            appId: "BURAYA-APP-ID"
+            apiKey: "AIzaSyBQVrJY0pGxvPxNqoUZm_Rqh1yK3TZL9kM",
+            authDomain: "ring-sistemi-xxxxx.firebaseapp.com",
+            databaseURL: "https://ring-sistemi-xxxxx-default-rtdb.firebaseio.com",
+            projectId: "ring-sistemi-xxxxx",
+            storageBucket: "ring-sistemi-xxxxx.appspot.com",
+            messagingSenderId: "123456789012",
+            appId: "1:123456789012:web:abcdef123456"
         };
 
         firebase.initializeApp(firebaseConfig);
@@ -379,8 +385,6 @@
             countRef.on('value', (snapshot) => {
                 const count = snapshot.val() || 0;
                 updateUI(count);
-                document.getElementById('statusText').textContent = '🟢 Bağlı';
-                document.getElementById('statusText').className = 'status-online';
             }, (error) => {
                 console.error('Firebase hatası:', error);
                 document.getElementById('statusText').textContent = '🔴 Bağlantı Hatası';
@@ -437,97 +441,64 @@
         }
 
         function notifyDriver(count) {
-            const wapiToken = localStorage.getItem('wapiToken');
-            const wapiInstanceId = localStorage.getItem('wapiInstanceId');
-            const driverPhone = localStorage.getItem('driverPhone');
+            const botToken = localStorage.getItem('botToken');
+            const chatId = localStorage.getItem('chatId');
             const stopName = localStorage.getItem('stopName') || 'MÜHENDİSLİK FAKÜLTESİ';
             
-            if (!wapiToken || !wapiInstanceId || !driverPhone) {
-                console.log('WAPI bilgileri eksik');
+            if (!botToken || !chatId) {
+                console.log('Telegram bilgileri eksik');
                 return;
             }
             
             const notified = localStorage.getItem('driverNotified');
             if (notified) return;
             
-            const message = `🚌 ACİL: ${stopName} durağında ${count} kişi ring çağırdı! Lütfen durağa gidin.`;
+            const message = `🚌 ACİL DURUM!\n\n${stopName} durağında ${count} kişi ring çağırdı!\n\nLütfen HEMEN durağa gidin! 🔔`;
             
-            let phoneNumber = driverPhone.replace(/\D/g, '');
-            if (!phoneNumber.startsWith('90')) {
-                phoneNumber = '90' + phoneNumber;
-            }
-            const chatId = phoneNumber + '@c.us';
+            const url = `https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(message)}`;
             
-            const url = `https://wapi.chat/api/send`;
-            
-            fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${wapiToken}`
-                },
-                body: JSON.stringify({
-                    instance_id: wapiInstanceId,
-                    number: phoneNumber,
-                    type: 'text',
-                    message: message
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Telegram cevabı:', data);
+                    if (data.ok) {
+                        localStorage.setItem('driverNotified', 'true');
+                        alert('✅ Şoför Telegram\'dan bilgilendirildi!');
+                    } else {
+                        console.error('Telegram hatası:', data);
+                    }
                 })
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log('WAPI cevabı:', data);
-                localStorage.setItem('driverNotified', 'true');
-                alert('✅ Şoför bilgilendirildi!');
-            })
-            .catch(err => {
-                console.error('Bildirim hatası:', err);
-            });
+                .catch(err => {
+                    console.error('Bildirim hatası:', err);
+                });
         }
 
         function sendTestMessage() {
-            const wapiToken = document.getElementById('wapiToken').value;
-            const wapiInstanceId = document.getElementById('wapiInstanceId').value;
-            const driverPhone = document.getElementById('driverPhone').value;
+            const botToken = document.getElementById('botToken').value;
+            const chatId = document.getElementById('chatId').value;
             const stopName = document.getElementById('stopNameInput').value;
             
-            if (!wapiToken || !wapiInstanceId || !driverPhone) {
-                alert('⚠️ Lütfen tüm bilgileri doldurun!');
+            if (!botToken || !chatId) {
+                alert('⚠️ Lütfen Bot Token ve Chat ID girin!');
                 return;
             }
             
-            let phoneNumber = driverPhone.replace(/\D/g, '');
-            if (!phoneNumber.startsWith('90')) {
-                phoneNumber = '90' + phoneNumber;
-            }
+            const message = `🧪 TEST MESAJI\n\n${stopName} - Ring sistemi başarıyla çalışıyor! ✅`;
+            const url = `https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(message)}`;
             
-            const message = `🧪 TEST: ${stopName} - Ring sistemi çalışıyor!`;
-            const url = `https://wapi.chat/api/send`;
-            
-            fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${wapiToken}`
-                },
-                body: JSON.stringify({
-                    instance_id: wapiInstanceId,
-                    number: phoneNumber,
-                    type: 'text',
-                    message: message
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Test cevabı:', data);
+                    if (data.ok) {
+                        alert('✅ Test mesajı gönderildi! Telegram\'ı kontrol edin.');
+                    } else {
+                        alert('⚠️ Hata: ' + data.description);
+                    }
                 })
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log('Test cevabı:', data);
-                if (data.status === 'success' || data.sent) {
-                    alert('✅ Test mesajı gönderildi!');
-                } else {
-                    alert('⚠️ Hata: ' + JSON.stringify(data));
-                }
-            })
-            .catch(err => {
-                alert('❌ Hata: ' + err.message);
-            });
+                .catch(err => {
+                    alert('❌ Bağlantı hatası: ' + err.message);
+                });
         }
 
         function checkCooldown() {
@@ -577,15 +548,13 @@
 
         function loadSettings() {
             const stopName = localStorage.getItem('stopName') || 'MÜHENDİSLİK FAKÜLTESİ';
-            const driverPhone = localStorage.getItem('driverPhone') || '';
-            const wapiInstanceId = localStorage.getItem('wapiInstanceId') || '';
-            const wapiToken = localStorage.getItem('wapiToken') || '';
+            const botToken = localStorage.getItem('botToken') || '';
+            const chatId = localStorage.getItem('chatId') || '';
             
             document.getElementById('stopName').textContent = stopName;
             document.getElementById('stopNameInput').value = stopName;
-            document.getElementById('driverPhone').value = driverPhone;
-            document.getElementById('wapiInstanceId').value = wapiInstanceId;
-            document.getElementById('wapiToken').value = wapiToken;
+            document.getElementById('botToken').value = botToken;
+            document.getElementById('chatId').value = chatId;
         }
 
         function openSettings() {
@@ -598,14 +567,12 @@
 
         function saveSettings() {
             const stopName = document.getElementById('stopNameInput').value;
-            const driverPhone = document.getElementById('driverPhone').value;
-            const wapiInstanceId = document.getElementById('wapiInstanceId').value;
-            const wapiToken = document.getElementById('wapiToken').value;
+            const botToken = document.getElementById('botToken').value;
+            const chatId = document.getElementById('chatId').value;
             
             localStorage.setItem('stopName', stopName);
-            localStorage.setItem('driverPhone', driverPhone);
-            localStorage.setItem('wapiInstanceId', wapiInstanceId);
-            localStorage.setItem('wapiToken', wapiToken);
+            localStorage.setItem('botToken', botToken);
+            localStorage.setItem('chatId', chatId);
             
             document.getElementById('stopName').textContent = stopName;
             
