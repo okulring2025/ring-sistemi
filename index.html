@@ -206,6 +206,11 @@
             border-radius: 0.5rem;
             font-size: 1rem;
         }
+        .form-hint {
+            font-size: 0.75rem;
+            color: #6B7280;
+            margin-top: 0.25rem;
+        }
         .info-box {
             background: #EFF6FF;
             border: 1px solid #BFDBFE;
@@ -242,7 +247,7 @@
             <button class="settings-btn" onclick="openSettings()">⚙️ Ayarlar</button>
             <div class="bell-icon">🔔</div>
             <h1 class="title">Ring Çağırma Sistemi</h1>
-            <p class="subtitle">Durak: <span id="stopName">Ana Kapı</span></p>
+            <p class="subtitle">Durak: <span id="stopName">Mühendislik</span></p>
         </div>
 
         <!-- Counter -->
@@ -283,11 +288,10 @@
         <div class="info-section">
             <p class="info-title">✅ Nasıl Çalışır?</p>
             <ul class="info-list">
-                <li>TÜM OKUL aynı sayacı görür - oda kodu YOK!</li>
+                <li>TÜM OKUL aynı sayacı görür</li>
                 <li>Herkes aynı linki/QR'ı kullanır</li>
-                <li>30 kişi butona basınca şoföre bildirim gider</li>
+                <li>30 kişi butona basınca şoföre WhatsApp gider</li>
                 <li>Her kişi 30 dakikada bir basabilir</li>
-                <li>Gerçek zamanlı güncelleme (Firebase)</li>
             </ul>
         </div>
     </div>
@@ -295,31 +299,44 @@
     <!-- Settings Modal -->
     <div class="modal" id="settingsModal">
         <div class="modal-content">
-            <h2 class="modal-title">⚙️ Ayarlar</h2>
+            <h2 class="modal-title">⚙️ WAPI Ayarları</h2>
             
             <div class="form-group">
                 <label class="form-label">Durak Adı</label>
-                <input type="text" class="form-input" id="stopNameInput" placeholder="Örn: Ana Kapı">
+                <input type="text" class="form-input" id="stopNameInput" value="Mühendislik">
             </div>
 
             <div class="form-group">
                 <label class="form-label">Şoför Telefon</label>
-                <input type="text" class="form-input" id="driverPhone" placeholder="905XXXXXXXXX">
+                <input type="text" class="form-input" id="driverPhone" placeholder="905321234567">
+                <div class="form-hint">Başında 0 olmadan, örn: 905321234567</div>
             </div>
 
             <div class="form-group">
-                <label class="form-label">API Key (WhatsApp)</label>
-                <input type="text" class="form-input" id="apiKey" placeholder="CallMeBot API">
+                <label class="form-label">WAPI Instance ID</label>
+                <input type="text" class="form-input" id="wapiInstanceId" placeholder="instance_xxxxx">
+                <div class="form-hint">WAPI Dashboard'dan kopyalayın</div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">WAPI Token</label>
+                <input type="text" class="form-input" id="wapiToken" placeholder="wapi_xxxxxxxxxx">
+                <div class="form-hint">WAPI Dashboard'dan kopyalayın</div>
             </div>
 
             <div class="info-box">
-                <p style="font-weight: 600; margin-bottom: 0.25rem;">📱 WhatsApp Kurulum:</p>
+                <p style="font-weight: 600; margin-bottom: 0.5rem;">📱 WAPI'den Nereden Alacaksınız:</p>
                 <ol style="padding-left: 1.2rem; margin: 0;">
-                    <li>Şoför +34 644 21 69 07 numarasını kaydetsin</li>
-                    <li>"I allow callmebot to send me messages" yazsın</li>
-                    <li>Gelen API key'i buraya girin</li>
+                    <li><strong>wapi.chat</strong> sitesine girin</li>
+                    <li>Dashboard'da <strong>"Instance"</strong> bölümüne gidin</li>
+                    <li><strong>Instance ID</strong> ve <strong>Token</strong>'ı kopyalayın</li>
+                    <li>Yukarıdaki kutulara yapıştırın</li>
                 </ol>
             </div>
+
+            <button class="btn btn-primary" onclick="sendTestMessage()" style="width: 100%; margin-bottom: 0.5rem;">
+                🧪 Test Mesajı Gönder
+            </button>
 
             <div class="button-group">
                 <button class="btn btn-primary" onclick="saveSettings()">Kaydet</button>
@@ -333,19 +350,17 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
     <script>
-        // ⚠️ BURAYA FİREBASE AYARLARINIZI YAPIŞTIRIN ⚠️
+        // ⚠️ FİREBASE AYARLARI - BURAYA KENDİ BİLGİLERİNİZİ YAZIN ⚠️
         const firebaseConfig = {
-            apiKey: "AIzaSyD2I7vZQxkisJy71UfEbzS9H_msih8CBuM",
-            authDomain: "ring-sistemi.firebaseapp.com",
-            databaseURL: "https://ring-sistemi-default-rtdb.firebaseio.com",
-            projectId: "ring-sistemi", 
-            storageBucket:"ring-sistemi.firebasestorage.app",
-            messagingSenderId: "48378187186",
-            appId: "1:48378187186:web:f63b01688b63d6b3c968ab",
-
+            apiKey: "BURAYA-FIREBASE-API-KEY",
+            authDomain: "BURAYA-AUTH-DOMAIN",
+            databaseURL: "BURAYA-DATABASE-URL",
+            projectId: "BURAYA-PROJECT-ID",
+            storageBucket: "BURAYA-STORAGE-BUCKET",
+            messagingSenderId: "BURAYA-SENDER-ID",
+            appId: "BURAYA-APP-ID"
         };
 
-        // Firebase başlat
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
         const countRef = database.ref('ringCount');
@@ -354,14 +369,12 @@
         const COOLDOWN_MS = 30 * 60 * 1000;
         let cooldownInterval = null;
 
-        // Sayfa yüklendiğinde
         window.onload = function() {
             loadSettings();
             checkCooldown();
             listenToCount();
         };
 
-        // Gerçek zamanlı sayacı dinle
         function listenToCount() {
             countRef.on('value', (snapshot) => {
                 const count = snapshot.val() || 0;
@@ -377,7 +390,6 @@
 
         function updateUI(count) {
             document.getElementById('count').textContent = count;
-            
             const progress = Math.min((count / TARGET_COUNT) * 100, 100);
             document.getElementById('progressBar').style.width = progress + '%';
             document.getElementById('progressText').textContent = '%' + Math.round(progress) + ' tamamlandı';
@@ -398,23 +410,18 @@
                 return;
             }
             
-            // Firebase'de sayıyı artır
             countRef.transaction((currentCount) => {
                 return (currentCount || 0) + 1;
             }).then((result) => {
                 if (result.committed) {
                     const newCount = result.snapshot.val();
-                    
-                    // Cooldown başlat
                     localStorage.setItem('myLastCall', now.toString());
                     
-                    // UI güncelle
                     document.getElementById('successMessage').classList.add('show');
                     setTimeout(() => {
                         document.getElementById('successMessage').classList.remove('show');
                     }, 3000);
                     
-                    // Butonu devre dışı bırak
                     document.getElementById('ringBtn').classList.remove('active');
                     document.getElementById('ringBtn').classList.add('disabled');
                     document.getElementById('ringBtn').textContent = '⏳ Bekleme Süresi';
@@ -422,11 +429,104 @@
                     
                     startCooldownTimer();
                     
-                    // 30'a ulaşıldıysa bildir
                     if (newCount >= TARGET_COUNT) {
                         notifyDriver(newCount);
                     }
                 }
+            });
+        }
+
+        function notifyDriver(count) {
+            const wapiToken = localStorage.getItem('wapiToken');
+            const wapiInstanceId = localStorage.getItem('wapiInstanceId');
+            const driverPhone = localStorage.getItem('driverPhone');
+            const stopName = localStorage.getItem('stopName') || 'Mühendislik';
+            
+            if (!wapiToken || !wapiInstanceId || !driverPhone) {
+                console.log('WAPI bilgileri eksik');
+                return;
+            }
+            
+            const notified = localStorage.getItem('driverNotified');
+            if (notified) return;
+            
+            const message = `🚌 ACİL: ${stopName} durağında ${count} kişi ring çağırdı! Lütfen durağa gidin.`;
+            
+            let phoneNumber = driverPhone.replace(/\D/g, '');
+            if (!phoneNumber.startsWith('90')) {
+                phoneNumber = '90' + phoneNumber;
+            }
+            const chatId = phoneNumber + '@c.us';
+            
+            const url = `https://wapi.chat/api/send`;
+            
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${wapiToken}`
+                },
+                body: JSON.stringify({
+                    instance_id: wapiInstanceId,
+                    number: phoneNumber,
+                    type: 'text',
+                    message: message
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('WAPI cevabı:', data);
+                localStorage.setItem('driverNotified', 'true');
+                alert('✅ Şoför bilgilendirildi!');
+            })
+            .catch(err => {
+                console.error('Bildirim hatası:', err);
+            });
+        }
+
+        function sendTestMessage() {
+            const wapiToken = document.getElementById('wapiToken').value;
+            const wapiInstanceId = document.getElementById('wapiInstanceId').value;
+            const driverPhone = document.getElementById('driverPhone').value;
+            const stopName = document.getElementById('stopNameInput').value;
+            
+            if (!wapiToken || !wapiInstanceId || !driverPhone) {
+                alert('⚠️ Lütfen tüm bilgileri doldurun!');
+                return;
+            }
+            
+            let phoneNumber = driverPhone.replace(/\D/g, '');
+            if (!phoneNumber.startsWith('90')) {
+                phoneNumber = '90' + phoneNumber;
+            }
+            
+            const message = `🧪 TEST: ${stopName} - Ring sistemi çalışıyor!`;
+            const url = `https://wapi.chat/api/send`;
+            
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${wapiToken}`
+                },
+                body: JSON.stringify({
+                    instance_id: wapiInstanceId,
+                    number: phoneNumber,
+                    type: 'text',
+                    message: message
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Test cevabı:', data);
+                if (data.status === 'success' || data.sent) {
+                    alert('✅ Test mesajı gönderildi!');
+                } else {
+                    alert('⚠️ Hata: ' + JSON.stringify(data));
+                }
+            })
+            .catch(err => {
+                alert('❌ Hata: ' + err.message);
             });
         }
 
@@ -475,36 +575,17 @@
             }, 1000);
         }
 
-        function notifyDriver(count) {
-            const driverPhone = localStorage.getItem('driverPhone');
-            const apiKey = localStorage.getItem('apiKey');
-            const stopName = localStorage.getItem('stopName') || 'Ana Kapı';
-            
-            if (!driverPhone || !apiKey) return;
-            
-            const notified = localStorage.getItem('driverNotified');
-            if (notified) return;
-            
-            const message = `🚌 ACİL: ${stopName} durağında ${count} kişi ring çağırdı! Lütfen durağa gidin.`;
-            const url = `https://api.callmebot.com/whatsapp.php?phone=${driverPhone}&text=${encodeURIComponent(message)}&apikey=${apiKey}`;
-            
-            fetch(url, { mode: 'no-cors' })
-                .then(() => {
-                    localStorage.setItem('driverNotified', 'true');
-                    alert('✅ Şoför bilgilendirildi!');
-                })
-                .catch(err => console.error('Bildirim hatası:', err));
-        }
-
         function loadSettings() {
-            const stopName = localStorage.getItem('stopName') || 'Ana Kapı';
+            const stopName = localStorage.getItem('stopName') || 'Mühendislik';
             const driverPhone = localStorage.getItem('driverPhone') || '';
-            const apiKey = localStorage.getItem('apiKey') || '';
+            const wapiInstanceId = localStorage.getItem('wapiInstanceId') || '';
+            const wapiToken = localStorage.getItem('wapiToken') || '';
             
             document.getElementById('stopName').textContent = stopName;
             document.getElementById('stopNameInput').value = stopName;
             document.getElementById('driverPhone').value = driverPhone;
-            document.getElementById('apiKey').value = apiKey;
+            document.getElementById('wapiInstanceId').value = wapiInstanceId;
+            document.getElementById('wapiToken').value = wapiToken;
         }
 
         function openSettings() {
@@ -518,11 +599,13 @@
         function saveSettings() {
             const stopName = document.getElementById('stopNameInput').value;
             const driverPhone = document.getElementById('driverPhone').value;
-            const apiKey = document.getElementById('apiKey').value;
+            const wapiInstanceId = document.getElementById('wapiInstanceId').value;
+            const wapiToken = document.getElementById('wapiToken').value;
             
             localStorage.setItem('stopName', stopName);
             localStorage.setItem('driverPhone', driverPhone);
-            localStorage.setItem('apiKey', apiKey);
+            localStorage.setItem('wapiInstanceId', wapiInstanceId);
+            localStorage.setItem('wapiToken', wapiToken);
             
             document.getElementById('stopName').textContent = stopName;
             
