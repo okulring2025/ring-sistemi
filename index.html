@@ -361,16 +361,16 @@
 
     <script>
         // ⚠️⚠️⚠️ BURAYA FİREBASE BİLGİLERİNİZİ YAPIŞTIRIN ⚠️⚠️⚠️
-        const firebaseConfig = {
-            apiKey: "AIzaSyDmxcfpPB4UJkAjXXN91Ox21gCJBzhejbc",
-            authDomain:  "ring-sistemi-55075.firebaseapp.com", 
-            databaseURL:"https://ring-sistemi-default-rtdb.firebaseio.com/",
-            projectId:"ring-sistemi-55075",
-            storageBucket: "ring-sistemi-55075.firebasestorage.app",
-            messagingSenderId: "100405136616",
-            appId: "1:100405136616:web:1ec73b26978468b9b84d5d",
-        };
-
+       
+const firebaseConfig = {
+    apiKey: "AIzaSyBkXGfE_j7nVQ8vH3L2mK9pN6qR7sT8uV0",
+    authDomain: "ring-test-2024.firebaseapp.com",
+    databaseURL: "https://ring-test-2024-default-rtdb.firebaseio.com",
+    projectId: "ring-test-2024",
+    storageBucket: "ring-test-2024.appspot.com",
+    messagingSenderId: "123456789012",
+    appId: "1:123456789012:web:abcdef123456"
+};
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
         const countRef = database.ref('ringCount');
