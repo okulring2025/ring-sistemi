@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ring Çağırma Sistemi</title>
+    <title>Ring Çağırma Sistemi - Test</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -13,15 +13,6 @@
             padding: 1rem;
         }
         .container { max-width: 28rem; margin: 0 auto; }
-        .status-bar {
-            background: white;
-            border-radius: 0.5rem;
-            padding: 0.75rem;
-            margin-bottom: 1rem;
-            text-align: center;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-        .status-online { color: #059669; font-weight: 600; }
         .header {
             background: white;
             border-radius: 1.5rem 1.5rem 0 0;
@@ -40,7 +31,6 @@
             border: none;
             border-radius: 0.5rem;
             cursor: pointer;
-            font-size: 0.875rem;
         }
         .bell-icon {
             width: 5rem;
@@ -53,61 +43,24 @@
             justify-content: center;
             font-size: 2.5rem;
         }
-        .title {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #1F2937;
-            margin-bottom: 0.5rem;
-        }
+        .title { font-size: 1.5rem; font-weight: bold; color: #1F2937; margin-bottom: 0.5rem; }
         .subtitle { color: #6B7280; }
-        .counter-section {
-            background: white;
-            padding: 2rem;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
+        .counter-section { background: white; padding: 2rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         .counter { text-align: center; margin-bottom: 1.5rem; }
-        .count-display {
-            font-size: 3rem;
-            font-weight: bold;
-            color: #4F46E5;
-        }
-        .count-target {
-            font-size: 1.5rem;
-            color: #9CA3AF;
-        }
+        .count-display { font-size: 3rem; font-weight: bold; color: #4F46E5; }
+        .count-target { font-size: 1.5rem; color: #9CA3AF; }
         .progress-bar-container {
             width: 100%;
             height: 1rem;
             background: #E5E7EB;
             border-radius: 9999px;
             overflow: hidden;
-            margin-bottom: 2rem;
+            margin: 1rem 0;
         }
         .progress-bar {
             height: 100%;
             background: linear-gradient(90deg, #6366F1 0%, #8B5CF6 100%);
             transition: width 0.5s;
-        }
-        .progress-text {
-            text-align: center;
-            font-size: 0.875rem;
-            color: #6B7280;
-            margin-top: 0.5rem;
-        }
-        .success-message {
-            margin-bottom: 1rem;
-            padding: 1rem;
-            background: #D1FAE5;
-            border: 1px solid #6EE7B7;
-            border-radius: 0.5rem;
-            color: #065F46;
-            font-weight: 500;
-            display: none;
-        }
-        .success-message.show { display: block; animation: bounce 0.5s; }
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
         }
         .ring-btn {
             width: 100%;
@@ -117,64 +70,41 @@
             font-size: 1.125rem;
             border: none;
             cursor: pointer;
-            transition: all 0.2s;
-        }
-        .ring-btn.active {
             background: #4F46E5;
             color: white;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-top: 1rem;
         }
-        .ring-btn.active:hover {
-            background: #4338CA;
-            transform: scale(1.02);
-        }
+        .ring-btn:hover { background: #4338CA; }
         .ring-btn.disabled {
             background: #D1D5DB;
             color: #6B7280;
             cursor: not-allowed;
         }
-        .cooldown-message {
+        .success { 
+            margin-top: 1rem; 
+            padding: 1rem; 
+            background: #D1FAE5; 
+            border-radius: 0.5rem; 
+            color: #065F46;
+            display: none;
+        }
+        .success.show { display: block; }
+        .cooldown {
             margin-top: 1rem;
             padding: 1rem;
             background: #FEF3C7;
-            border: 1px solid #FCD34D;
             border-radius: 0.5rem;
             text-align: center;
             color: #92400E;
             display: none;
         }
-        .cooldown-message.show { display: block; }
-        .complete-message {
-            margin-top: 1rem;
-            padding: 1rem;
-            background: #D1FAE5;
-            border: 2px solid #34D399;
-            border-radius: 0.5rem;
-            display: none;
-            animation: pulse 2s infinite;
-        }
-        .complete-message.show { display: block; }
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.8; }
-        }
+        .cooldown.show { display: block; }
         .info-section {
             background: white;
             border-radius: 0 0 1.5rem 1.5rem;
             padding: 1.5rem;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
-        .info-title {
-            font-weight: bold;
-            margin-bottom: 0.5rem;
-            color: #1F2937;
-        }
-        .info-list {
-            font-size: 0.75rem;
-            color: #6B7280;
-            padding-left: 1.5rem;
-        }
-        .info-list li { margin-bottom: 0.25rem; }
         .modal {
             display: none;
             position: fixed;
@@ -192,75 +122,28 @@
             padding: 1.5rem;
             max-width: 24rem;
             width: 100%;
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-        .modal-title {
-            font-size: 1.25rem;
-            font-weight: bold;
-            margin-bottom: 1rem;
         }
         .form-group { margin-bottom: 1rem; }
-        .form-label {
-            display: block;
-            font-size: 0.875rem;
-            font-weight: 500;
-            margin-bottom: 0.25rem;
-        }
+        .form-label { display: block; font-size: 0.875rem; font-weight: 500; margin-bottom: 0.25rem; }
         .form-input {
             width: 100%;
             padding: 0.5rem;
             border: 1px solid #D1D5DB;
             border-radius: 0.5rem;
-            font-size: 1rem;
         }
-        .form-hint {
-            font-size: 0.75rem;
-            color: #6B7280;
-            margin-top: 0.25rem;
-        }
-        .info-box {
-            background: #EFF6FF;
-            border: 1px solid #BFDBFE;
-            border-radius: 0.5rem;
-            padding: 0.75rem;
-            font-size: 0.75rem;
-            color: #1E40AF;
-            margin-bottom: 1rem;
-        }
-        .button-group { display: flex; gap: 0.5rem; }
         .btn {
-            flex: 1;
-            padding: 0.5rem;
+            padding: 0.5rem 1rem;
             border: none;
             border-radius: 0.5rem;
             cursor: pointer;
-            font-size: 0.875rem;
+            margin-right: 0.5rem;
         }
         .btn-primary { background: #4F46E5; color: white; }
-        .btn-primary:hover { background: #4338CA; }
         .btn-secondary { background: #D1D5DB; color: #374151; }
-        .btn-secondary:hover { background: #9CA3AF; }
-        .reset-btn {
-            margin-top: 1rem;
-            width: 100%;
-            padding: 0.5rem;
-            background: #EF4444;
-            color: white;
-            border: none;
-            border-radius: 0.5rem;
-            cursor: pointer;
-            font-size: 0.75rem;
-        }
-        .reset-btn:hover { background: #DC2626; }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="status-bar">
-            <span class="status-online">🟢 Sistem Aktif (JSONBin)</span>
-        </div>
-
         <div class="header">
             <button class="settings-btn" onclick="openSettings()">⚙️ Ayarlar</button>
             <div class="bell-icon">🔔</div>
@@ -275,46 +158,34 @@
                     <span class="count-target">/ 30</span>
                 </div>
                 <p style="color: #6B7280; margin-top: 0.5rem;">kişi ring çağırdı</p>
-                <p style="color: #9CA3AF; font-size: 0.75rem; margin-top: 0.25rem;">🌐 Tüm okul aynı sayacı görüyor</p>
             </div>
 
             <div class="progress-bar-container">
                 <div class="progress-bar" id="progressBar" style="width: 0%"></div>
             </div>
-            <div class="progress-text" id="progressText">%0 tamamlandı</div>
 
-            <div class="success-message" id="successMessage">
-                ✅ Ring çağrınız kaydedildi!
-            </div>
+            <div class="success" id="successMsg">✅ Ring çağrınız kaydedildi!</div>
 
-            <button class="ring-btn active" id="ringBtn" onclick="callRing()">
+            <button class="ring-btn" id="ringBtn" onclick="callRing()">
                 🔔 RING ÇAĞIR
             </button>
 
-            <div class="cooldown-message" id="cooldownMessage">
-                Tekrar çağırabilmek için: <strong id="cooldownTime">--:--</strong>
-            </div>
-
-            <div class="complete-message" id="completeMessage">
-                <p style="font-weight: bold; color: #065F46; margin-bottom: 0.25rem;">🎉 Hedef Tamamlandı!</p>
-                <p style="font-size: 0.875rem; color: #047857;">Şoför bilgilendirildi! Sayaç sıfırlanıyor...</p>
+            <div class="cooldown" id="cooldownMsg">
+                Kalan süre: <strong id="cooldownTime">--:--</strong>
             </div>
         </div>
 
         <div class="info-section">
-            <p class="info-title">✅ Nasıl Çalışır?</p>
-            <ul class="info-list">
-                <li>TÜM OKUL aynı sayacı görür</li>
-                <li>30 kişi butona basınca şoföre Telegram mesajı gider</li>
-                <li>Her kişi 30 dakikada bir basabilir</li>
-                <li>30 kişi sonrası sayaç otomatik sıfırlanır</li>
-            </ul>
+            <p><strong>✅ Test Modu</strong></p>
+            <p style="font-size: 0.875rem; color: #6B7280; margin-top: 0.5rem;">
+                Bu basit test versiyonu. Butona basınca sayı artacak, 30 dakika cooldown çalışacak.
+            </p>
         </div>
     </div>
 
     <div class="modal" id="settingsModal">
         <div class="modal-content">
-            <h2 class="modal-title">⚙️ Telegram Ayarları</h2>
+            <h2>⚙️ Ayarlar</h2>
             
             <div class="form-group">
                 <label class="form-label">Durak Adı</label>
@@ -323,208 +194,109 @@
 
             <div class="form-group">
                 <label class="form-label">Telegram Bot Token</label>
-                <input type="text" class="form-input" id="botToken" placeholder="1234567890:AAHdqTcvCH1vGWJxfSeofSAs0K5PALDsaw">
-                <div class="form-hint">@BotFather'dan aldığınız uzun kod</div>
+                <input type="text" class="form-input" id="botToken" placeholder="Bot token">
             </div>
 
             <div class="form-group">
                 <label class="form-label">Telegram Chat ID</label>
-                <input type="text" class="form-input" id="chatId" placeholder="987654321">
-                <div class="form-hint">@userinfobot'tan alın</div>
+                <input type="text" class="form-input" id="chatId" placeholder="Chat ID">
             </div>
 
-            <div class="info-box">
-                <p style="font-weight: 600; margin-bottom: 0.5rem;">📱 Hızlı Kurulum:</p>
-                <ol style="padding-left: 1.2rem; margin: 0; font-size: 0.7rem;">
-                    <li>Telegram'da <strong>@BotFather</strong> → /newbot</li>
-                    <li>Token'ı kopyala → yukarı yapıştır</li>
-                    <li>Telegram'da <strong>@userinfobot</strong> → START</li>
-                    <li>Chat ID'yi kopyala → yukarı yapıştır</li>
-                </ol>
-            </div>
-
-            <button class="btn btn-primary" onclick="sendTestMessage()" style="width: 100%; margin-bottom: 0.5rem;">
-                🧪 Test Mesajı Gönder
-            </button>
-
-            <div class="button-group">
-                <button class="btn btn-primary" onclick="saveSettings()">Kaydet</button>
-                <button class="btn btn-secondary" onclick="closeSettings()">İptal</button>
-            </div>
-
-            <button class="reset-btn" onclick="resetSystem()">
-                🔄 Sayacı Sıfırla (Yönetici)
-            </button>
+            <button class="btn btn-primary" onclick="saveSettings()">Kaydet</button>
+            <button class="btn btn-secondary" onclick="closeSettings()">İptal</button>
         </div>
     </div>
 
     <script>
-        const BIN_ID = '676eaaf3e41b4d34e46d7e1d';
-        const API_KEY = '$2a$10$pVZ8qF/XwTL0YVvhEKjDJOTkn6v8YXiRLNMqYCXJK4iFwV5mh8zgy';
-        const API_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
-        
-        const TARGET_COUNT = 30;
-        const COOLDOWN_MS = 30 * 60 * 1000;
+        const COOLDOWN_MS = 30 * 60 * 1000; // 30 dakika
         let cooldownInterval = null;
 
         window.onload = function() {
             loadSettings();
+            loadCount();
             checkCooldown();
-            loadData();
-            setInterval(loadData, 2000);
+            setInterval(loadCount, 2000);
         };
 
-        async function loadData() {
-            try {
-                const response = await fetch(API_URL + '/latest', {
-                    headers: { 'X-Master-Key': API_KEY }
-                });
-                const result = await response.json();
-                const count = result.record.count || 0;
-                updateUI(count);
-            } catch (error) {
-                console.error('Yükleme hatası:', error);
-            }
-        }
-
-        function updateUI(count) {
+        function loadCount() {
+            const count = parseInt(localStorage.getItem('testCount') || '0');
             document.getElementById('count').textContent = count;
-            const progress = Math.min((count / TARGET_COUNT) * 100, 100);
+            const progress = Math.min((count / 30) * 100, 100);
             document.getElementById('progressBar').style.width = progress + '%';
-            document.getElementById('progressText').textContent = '%' + Math.round(progress) + ' tamamlandı';
             
-            if (count >= TARGET_COUNT) {
-                document.getElementById('completeMessage').classList.add('show');
-            } else {
-                document.getElementById('completeMessage').classList.remove('show');
+            if (count >= 30) {
+                alert('🎉 30 kişiye ulaşıldı! Şoför bilgilendirildi!');
+                localStorage.setItem('testCount', '0');
+                loadCount();
             }
         }
 
-        async function callRing() {
+        function callRing() {
+            console.log('Ring butonuna basıldı');
+            
             const lastCall = localStorage.getItem('myLastCall');
             const now = Date.now();
             
             if (lastCall && (now - parseInt(lastCall)) < COOLDOWN_MS) {
                 const remaining = COOLDOWN_MS - (now - parseInt(lastCall));
                 const mins = Math.floor(remaining / 60000);
-                alert(`⏳ Henüz bekleme süreniz bitmedi!\n\nKalan süre: ${mins} dakika`);
+                alert(`⏳ Bekleme süreniz henüz bitmedi! Kalan: ${mins} dakika`);
                 return;
             }
             
-            try {
-                const response = await fetch(API_URL + '/latest', {
-                    headers: { 'X-Master-Key': API_KEY }
-                });
-                const result = await response.json();
-                let currentCount = result.record.count || 0;
-                
-                // 30'a ulaşmışsa sıfırla
-                if (currentCount >= TARGET_COUNT) {
-                    currentCount = 0;
-                    localStorage.removeItem('driverNotified');
-                }
-                
-                const newCount = currentCount + 1;
-                
-                await fetch(API_URL, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-Master-Key': API_KEY
-                    },
-                    body: JSON.stringify({ count: newCount })
-                });
-                
-                localStorage.setItem('myLastCall', now.toString());
-                updateUI(newCount);
-                
-                document.getElementById('successMessage').classList.add('show');
-                setTimeout(() => {
-                    document.getElementById('successMessage').classList.remove('show');
-                }, 3000);
-                
-                document.getElementById('ringBtn').classList.remove('active');
-                document.getElementById('ringBtn').classList.add('disabled');
-                document.getElementById('ringBtn').textContent = '⏳ Bekleme Süresi';
-                document.getElementById('cooldownMessage').classList.add('show');
-                
-                startCooldownTimer();
-                
-                if (newCount >= TARGET_COUNT) {
-                    await notifyDriver(newCount);
-                }
-            } catch (error) {
-                alert('❌ Hata oluştu! Tekrar deneyin.');
-                console.error(error);
+            // Sayıyı artır
+            const currentCount = parseInt(localStorage.getItem('testCount') || '0');
+            const newCount = currentCount + 1;
+            localStorage.setItem('testCount', newCount.toString());
+            
+            // Cooldown başlat
+            localStorage.setItem('myLastCall', now.toString());
+            
+            // UI güncelle
+            loadCount();
+            document.getElementById('successMsg').classList.add('show');
+            setTimeout(() => {
+                document.getElementById('successMsg').classList.remove('show');
+            }, 3000);
+            
+            document.getElementById('ringBtn').classList.add('disabled');
+            document.getElementById('ringBtn').textContent = '⏳ Bekleme Süresi';
+            document.getElementById('cooldownMsg').classList.add('show');
+            
+            startCooldownTimer();
+            
+            // 30'a ulaşıldıysa Telegram mesajı gönder
+            if (newCount >= 30) {
+                sendTelegramMessage(newCount);
             }
+            
+            console.log('Yeni sayı:', newCount);
         }
 
-        async function notifyDriver(count) {
+        function sendTelegramMessage(count) {
             const botToken = localStorage.getItem('botToken');
             const chatId = localStorage.getItem('chatId');
             const stopName = localStorage.getItem('stopName') || 'MÜHENDİSLİK FAKÜLTESİ';
             
             if (!botToken || !chatId) {
-                console.log('Telegram bilgileri eksik');
+                console.log('Telegram bilgileri girilmemiş');
                 return;
             }
             
-            const notified = localStorage.getItem('driverNotified');
-            if (notified) return;
-            
-            const message = `🚌 ACİL DURUM!\n\n${stopName} durağında ${count} kişi ring çağırdı!\n\nLütfen HEMEN durağa gidin! 🔔\n\nSayaç sıfırlanıyor...`;
+            const message = `🚌 ACİL DURUM!\n\n${stopName} durağında ${count} kişi ring çağırdı!\n\nLütfen HEMEN durağa gidin! 🔔`;
             const url = `https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(message)}`;
             
-            try {
-                const response = await fetch(url);
-                const data = await response.json();
-                if (data.ok) {
-                    localStorage.setItem('driverNotified', 'true');
-                    alert('✅ Şoför Telegram\'dan bilgilendirildi!');
-                    
-                    // 5 saniye sonra sayacı sıfırla
-                    setTimeout(async () => {
-                        await fetch(API_URL, {
-                            method: 'PUT',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-Master-Key': API_KEY
-                            },
-                            body: JSON.stringify({ count: 0 })
-                        });
-                        localStorage.removeItem('driverNotified');
-                        await loadData();
-                    }, 5000);
-                }
-            } catch (error) {
-                console.error('Bildirim hatası:', error);
-            }
-        }
-
-        async function sendTestMessage() {
-            const botToken = document.getElementById('botToken').value;
-            const chatId = document.getElementById('chatId').value;
-            const stopName = document.getElementById('stopNameInput').value;
-            
-            if (!botToken || !chatId) {
-                alert('⚠️ Lütfen Bot Token ve Chat ID girin!');
-                return;
-            }
-            
-            const message = `🧪 TEST MESAJI\n\n${stopName} - Ring sistemi başarıyla çalışıyor! ✅`;
-            const url = `https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(message)}`;
-            
-            try {
-                const response = await fetch(url);
-                const data = await response.json();
-                if (data.ok) {
-                    alert('✅ Test mesajı gönderildi! Telegram\'ı kontrol edin.');
-                } else {
-                    alert('⚠️ Hata: ' + data.description);
-                }
-            } catch (error) {
-                alert('❌ Bağlantı hatası: ' + error.message);
-            }
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.ok) {
+                        console.log('Telegram mesajı gönderildi');
+                        alert('✅ Şoför Telegram\'dan bilgilendirildi!');
+                    } else {
+                        console.error('Telegram hatası:', data);
+                    }
+                })
+                .catch(err => console.error('Mesaj hatası:', err));
         }
 
         function checkCooldown() {
@@ -535,10 +307,9 @@
             const elapsed = now - parseInt(lastCall);
             
             if (elapsed < COOLDOWN_MS) {
-                document.getElementById('ringBtn').classList.remove('active');
                 document.getElementById('ringBtn').classList.add('disabled');
                 document.getElementById('ringBtn').textContent = '⏳ Bekleme Süresi';
-                document.getElementById('cooldownMessage').classList.add('show');
+                document.getElementById('cooldownMsg').classList.add('show');
                 startCooldownTimer();
             }
         }
@@ -554,15 +325,13 @@
                 }
                 
                 const now = Date.now();
-                const elapsed = now - parseInt(lastCall);
-                const remaining = COOLDOWN_MS - elapsed;
+                const remaining = COOLDOWN_MS - (now - parseInt(lastCall));
                 
                 if (remaining <= 0) {
                     clearInterval(cooldownInterval);
                     document.getElementById('ringBtn').classList.remove('disabled');
-                    document.getElementById('ringBtn').classList.add('active');
                     document.getElementById('ringBtn').textContent = '🔔 RING ÇAĞIR';
-                    document.getElementById('cooldownMessage').classList.remove('show');
+                    document.getElementById('cooldownMsg').classList.remove('show');
                 } else {
                     const mins = Math.floor(remaining / 60000);
                     const secs = Math.floor((remaining % 60000) / 1000);
@@ -572,38 +341,12 @@
             }, 1000);
         }
 
-        async function resetSystem() {
-            if (!confirm('⚠️ Sayacı sıfırlamak istediğinize emin misiniz?\n\nBu işlem tüm okul için sayacı 0 yapacak!')) {
-                return;
-            }
-            
-            try {
-                await fetch(API_URL, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-Master-Key': API_KEY
-                    },
-                    body: JSON.stringify({ count: 0 })
-                });
-                
-                localStorage.removeItem('driverNotified');
-                await loadData();
-                alert('✅ Sayaç sıfırlandı!');
-            } catch (error) {
-                alert('❌ Sıfırlama hatası!');
-            }
-        }
-
         function loadSettings() {
             const stopName = localStorage.getItem('stopName') || 'MÜHENDİSLİK FAKÜLTESİ';
-            const botToken = localStorage.getItem('botToken') || '';
-            const chatId = localStorage.getItem('chatId') || '';
-            
             document.getElementById('stopName').textContent = stopName;
             document.getElementById('stopNameInput').value = stopName;
-            document.getElementById('botToken').value = botToken;
-            document.getElementById('chatId').value = chatId;
+            document.getElementById('botToken').value = localStorage.getItem('botToken') || '';
+            document.getElementById('chatId').value = localStorage.getItem('chatId') || '';
         }
 
         function openSettings() {
@@ -624,7 +367,6 @@
             localStorage.setItem('chatId', chatId);
             
             document.getElementById('stopName').textContent = stopName;
-            
             alert('✅ Ayarlar kaydedildi!');
             closeSettings();
         }
